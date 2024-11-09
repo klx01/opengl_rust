@@ -1,0 +1,1 @@
+To pass the data between shaders in the same shader program, you can give the same name and type to an output variable of an earlier shader and an input variable of a later shader. They will be connected by linker.

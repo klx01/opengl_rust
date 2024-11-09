@@ -9,8 +9,10 @@ const WINDOW_WIDTH: u32 = 1600;
 const WINDOW_HEIGHT: u32 = 900;
 
 const VERT_SHADER_NOOP: &str = include_str!("shaders/noop.vert");
+const VERT_SHADER_COLOUR: &str = include_str!("shaders/colour.vert");
 const FRAG_SHADER_ORANGE: &str = include_str!("shaders/orange.frag");
 const FRAG_SHADER_YELLOW: &str = include_str!("shaders/yellow.frag");
+const FRAG_SHADER_COLOUR: &str = include_str!("shaders/input_colour.frag");
 
 fn main() {
     let mut glfw = glfw::init(glfw::log_errors)
@@ -26,20 +28,30 @@ fn main() {
     window.make_current();
 
     gl::load_with(|s| window.get_proc_address(s) as *const _);
+    
+    /*// vertex shaders are guaranteed to have at least 16 vec4 inputs
+    // you can check the actual amount using this
+    // in my case it's still 16
+    let mut res = 0;
+    unsafe { gl::GetIntegerv(gl::MAX_VERTEX_ATTRIBS, &mut res) };
+    println!("max vertex attributes {res}");*/
 
     let (width, height) = window.get_framebuffer_size();
     window.set_framebuffer_size_callback(on_resize);
     on_resize(&mut window, width, height);
 
-    let Some(program_orange) = ShaderProgram::compile_vert_and_frag(VERT_SHADER_NOOP, FRAG_SHADER_ORANGE) else {
+    /*let Some(program_orange) = ShaderProgram::compile_vert_and_frag(VERT_SHADER_NOOP, FRAG_SHADER_ORANGE) else {
         return;
     };
     let Some(program_yellow) = ShaderProgram::compile_vert_and_frag(VERT_SHADER_NOOP, FRAG_SHADER_YELLOW) else {
         return;
+    };*/
+    let Some(program_color) = ShaderProgram::compile_vert_and_frag(VERT_SHADER_COLOUR, FRAG_SHADER_COLOUR) else {
+        return;
     };
 
-    //let mesh = rectangle();
-    let meshes = two_triangles_old_split();
+    let mesh = rectangle_screen();
+    //let meshes = two_triangles_old_split();
     //unsafe{gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE)};
 
     while !window.should_close() {
@@ -50,10 +62,12 @@ fn main() {
             gl::ClearColor(0.2, 0.3, 0.3, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT);
         }
-        program_orange.use_program();
+        program_color.use_program();
+        mesh.render();
+        /*program_orange.use_program();
         meshes[0].render();
         program_yellow.use_program();
-        meshes[1].render();
+        meshes[1].render();*/
 
         window.swap_buffers();
         glfw.poll_events();
@@ -66,6 +80,19 @@ fn rectangle() -> Mesh {
          0.5, -0.5, 0.0,  // bottom right
         -0.5, -0.5, 0.0,  // bottom left
         -0.5,  0.5, 0.0   // top left
+    ];
+    let indices = [
+        0, 1, 3,   // first triangle
+        1, 2, 3,    // second triangle
+    ];
+    Mesh::new(&vertices, &indices)
+}
+fn rectangle_screen() -> Mesh {
+    let vertices = [
+         1.0,  1.0, 0.0,  // top right
+         1.0, -1.0, 0.0,  // bottom right
+        -1.0, -1.0, 0.0,  // bottom left
+        -1.0,  1.0, 0.0   // top left
     ];
     let indices = [
         0, 1, 3,   // first triangle
