@@ -2,6 +2,7 @@ use crate::shader::{IProgram, ShaderProgram};
 
 const VERT_SHADER_NOOP: &str = include_str!("shaders/noop.vert");
 const VERT_SHADER_POS_COLOUR: &str = include_str!("shaders/position_colour.vert");
+const VERT_SHADER_IN_COLOUR: &str = include_str!("shaders/input_colour.vert");
 const FRAG_SHADER_ORANGE: &str = include_str!("shaders/orange.frag");
 const FRAG_SHADER_YELLOW: &str = include_str!("shaders/yellow.frag");
 const FRAG_SHADER_IN_COLOUR: &str = include_str!("shaders/input_colour.frag");
@@ -17,6 +18,10 @@ pub(crate) fn program_yellow() -> Option<ShaderProgram> {
 
 pub(crate) fn program_pos_colour() -> Option<ShaderProgram> {
     ShaderProgram::compile_vert_and_frag(VERT_SHADER_POS_COLOUR, FRAG_SHADER_IN_COLOUR)
+}
+
+pub(crate) fn program_in_colour() -> Option<ShaderProgram> {
+    ShaderProgram::compile_vert_and_frag(VERT_SHADER_IN_COLOUR, FRAG_SHADER_IN_COLOUR)
 }
 
 pub(crate) fn program_set_colour() -> Option<ProgramSetColour> {

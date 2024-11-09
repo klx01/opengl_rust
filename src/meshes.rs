@@ -11,7 +11,7 @@ pub(crate) fn rectangle() -> Mesh {
         0, 1, 3,   // first triangle
         1, 2, 3,    // second triangle
     ];
-    Mesh::new(&vertices, &indices)
+    Mesh::new(&vertices, &indices, &[3])
 }
 
 pub(crate) fn rectangle_screen() -> Mesh {
@@ -25,7 +25,18 @@ pub(crate) fn rectangle_screen() -> Mesh {
         0, 1, 3,   // first triangle
         1, 2, 3,    // second triangle
     ];
-    Mesh::new(&vertices, &indices)
+    Mesh::new(&vertices, &indices, &[3])
+}
+
+pub(crate) fn multi_attr() -> Mesh {
+    let vertices = [
+        // positions         // colors
+         0.5, -0.5, 0.0,  1.0, 0.0, 0.0,   // bottom right
+        -0.5, -0.5, 0.0,  0.0, 1.0, 0.0,   // bottom left
+         0.0,  0.5, 0.0,  0.0, 0.0, 1.0    // top 
+    ];
+    let indices = [0, 1, 2];
+    Mesh::new(&vertices, &indices, &[3, 3])
 }
 
 pub(crate) fn old_triangle() -> OldMesh {
