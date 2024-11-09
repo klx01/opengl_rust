@@ -6,3 +6,6 @@ edition = "2021"
 [dependencies]
 gl = "^0.14"
 glfw = "^0.58"
+
+[profile.release]
+strip = "none"

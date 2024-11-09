@@ -35,10 +35,12 @@ fn main() -> Result<(), ()> {
     println!("max vertex attributes {res}");*/
 
     //let program_orange = program_orange().ok_or(())?;
+    //let program = program_upside_down().ok_or(())?;
+    let program = program_offset().ok_or(())?;
     //let program_yellow = program_yellow().ok_or(())?;
     //let program = program_pos_colour().ok_or(())?;
     //let program = program_set_colour().ok_or(())?;
-    let program = program_in_colour().ok_or(())?;
+    //let program = program_in_colour().ok_or(())?;
 
     let (width, height) = window.get_framebuffer_size();
     window.set_framebuffer_size_callback(on_resize);
@@ -52,16 +54,18 @@ fn main() -> Result<(), ()> {
     while !window.should_close() {
         if window.get_key(Key::Escape) == Action::Press {
             window.set_should_close(true);
-        }
-        /*let time = glfw.get_time();
-        let green = (time.sin() / 2.0) + 0.5;*/
+        } 
+        let time = glfw.get_time();
+        let green = (time.sin() / 2.0) + 0.5;
+        let offset_x = time.sin() / 2.0;
         unsafe {
             gl::ClearColor(0.2, 0.3, 0.3, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT);
         }
         program.use_program();
         // to set the uniform value, you need to use the program first
-        //program.set_colour(0.0, green as f32, 0.0, 1.0);
+        //program.set_location(0, 0.0, green as f32, 0.0, 1.0);
+        program.set_location(0, offset_x as f32, 0.0, 0.0, 0.0);
         mesh.render();
         /*program_orange.use_program();
         meshes[0].render();

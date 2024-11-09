@@ -121,3 +121,33 @@ pub(crate) trait IProgram {
 unsafe fn str_to_gl_ptr(str: &str) -> *const types::GLchar {
     str.as_bytes().as_ptr() as *const types::GLchar
 }
+
+pub(crate) struct ProgramWithUniforms {
+    inner: ShaderProgram,
+    locations: Box<[i32]>,
+}
+impl ProgramWithUniforms {
+    pub(crate) fn new(inner: ShaderProgram, names: &[&CStr]) -> Option<Self> {
+        let mut locations = Vec::with_capacity(names.len());
+        for name in names {
+            let location = inner.get_uniform_location(name);
+            if location < 0 {
+                return None;
+            }
+            locations.push(location);
+        }
+        let locations = locations.into_boxed_slice();
+        Some(Self { inner, locations })
+    }
+    pub(crate) fn set_location(&self, index: usize, v1: f32, v2: f32, v3: f32, v4: f32) {
+        self.inner.set_uniform(self.locations[index], v1, v2, v3, v4)
+    }
+    pub(crate) fn inner(&self) -> &ShaderProgram {
+        &self.inner
+    }
+}
+impl IProgram for ProgramWithUniforms {
+    fn use_program(&self) {
+        self.inner.use_program();
+    }
+}
