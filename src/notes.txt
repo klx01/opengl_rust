@@ -1,1 +1,5 @@
 To pass the data between shaders in the same shader program, you can give the same name and type to an output variable of an earlier shader and an input variable of a later shader. They will be connected by linker.
+
+Uniforms are accessible from any shader in a shader program; and a uniform has the same value across all shaders, and across all parallel runs of the same shader.
+
+You can set explicit uniform locations in newer versions of opengl the same way as we do for inputs, however i'm stuck with 4.1, so i have to query the locations.

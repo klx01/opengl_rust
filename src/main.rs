@@ -1,20 +1,18 @@
 mod shader;
 mod mesh;
+mod meshes;
+mod shaders;
 
 use glfw::{Action, Context, Key, OpenGlProfileHint, WindowHint};
 use shader::*;
+use shaders::*;
 use mesh::*;
+use meshes::*;
 
 const WINDOW_WIDTH: u32 = 1600;
 const WINDOW_HEIGHT: u32 = 900;
 
-const VERT_SHADER_NOOP: &str = include_str!("shaders/noop.vert");
-const VERT_SHADER_COLOUR: &str = include_str!("shaders/colour.vert");
-const FRAG_SHADER_ORANGE: &str = include_str!("shaders/orange.frag");
-const FRAG_SHADER_YELLOW: &str = include_str!("shaders/yellow.frag");
-const FRAG_SHADER_COLOUR: &str = include_str!("shaders/input_colour.frag");
-
-fn main() {
+fn main() -> Result<(), ()> {
     let mut glfw = glfw::init(glfw::log_errors)
         .expect("Failed to init GLFW");
 
@@ -28,7 +26,7 @@ fn main() {
     window.make_current();
 
     gl::load_with(|s| window.get_proc_address(s) as *const _);
-    
+
     /*// vertex shaders are guaranteed to have at least 16 vec4 inputs
     // you can check the actual amount using this
     // in my case it's still 16
@@ -36,19 +34,14 @@ fn main() {
     unsafe { gl::GetIntegerv(gl::MAX_VERTEX_ATTRIBS, &mut res) };
     println!("max vertex attributes {res}");*/
 
+    //let program_orange = program_orange().ok_or(())?;
+    //let program_yellow = program_yellow().ok_or(())?;
+    //let program = program_pos_colour().ok_or(())?;
+    let program = program_set_colour().ok_or(())?;
+
     let (width, height) = window.get_framebuffer_size();
     window.set_framebuffer_size_callback(on_resize);
     on_resize(&mut window, width, height);
-
-    /*let Some(program_orange) = ShaderProgram::compile_vert_and_frag(VERT_SHADER_NOOP, FRAG_SHADER_ORANGE) else {
-        return;
-    };
-    let Some(program_yellow) = ShaderProgram::compile_vert_and_frag(VERT_SHADER_NOOP, FRAG_SHADER_YELLOW) else {
-        return;
-    };*/
-    let Some(program_color) = ShaderProgram::compile_vert_and_frag(VERT_SHADER_COLOUR, FRAG_SHADER_COLOUR) else {
-        return;
-    };
 
     let mesh = rectangle_screen();
     //let meshes = two_triangles_old_split();
@@ -58,11 +51,15 @@ fn main() {
         if window.get_key(Key::Escape) == Action::Press {
             window.set_should_close(true);
         }
+        let time = glfw.get_time();
+        let green = (time.sin() / 2.0) + 0.5;
         unsafe {
             gl::ClearColor(0.2, 0.3, 0.3, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT);
         }
-        program_color.use_program();
+        program.use_program();
+        // to set the uniform value, you need to use the program first
+        program.set_colour(0.0, green as f32, 0.0, 1.0);
         mesh.render();
         /*program_orange.use_program();
         meshes[0].render();
@@ -72,71 +69,7 @@ fn main() {
         window.swap_buffers();
         glfw.poll_events();
     }
-}
-
-fn rectangle() -> Mesh {
-    let vertices = [
-         0.5,  0.5, 0.0,  // top right
-         0.5, -0.5, 0.0,  // bottom right
-        -0.5, -0.5, 0.0,  // bottom left
-        -0.5,  0.5, 0.0   // top left
-    ];
-    let indices = [
-        0, 1, 3,   // first triangle
-        1, 2, 3,    // second triangle
-    ];
-    Mesh::new(&vertices, &indices)
-}
-fn rectangle_screen() -> Mesh {
-    let vertices = [
-         1.0,  1.0, 0.0,  // top right
-         1.0, -1.0, 0.0,  // bottom right
-        -1.0, -1.0, 0.0,  // bottom left
-        -1.0,  1.0, 0.0   // top left
-    ];
-    let indices = [
-        0, 1, 3,   // first triangle
-        1, 2, 3,    // second triangle
-    ];
-    Mesh::new(&vertices, &indices)
-}
-
-fn old_triangle() -> OldMesh {
-    let vertices = [
-        -0.5, -0.5, 0.0,
-         0.5, -0.5, 0.0,
-         0.0,  0.5, 0.0,
-    ];
-    OldMesh::new(&vertices)
-}
-
-fn two_triangles_old() -> OldMesh {
-    let vertices = [
-        -1.0, -1.0, 0.0,
-        -0.0, -1.0, 0.0,
-        -0.5,  0.0, 0.0,
-
-        0.0, 0.0, 0.0,
-        1.0, 0.0, 0.0,
-        0.5, 1.0, 0.0,
-    ];
-    OldMesh::new(&vertices)
-}
-
-fn two_triangles_old_split() -> [OldMesh; 2] {
-    let vertices = [
-        -1.0, -1.0, 0.0,
-        -0.0, -1.0, 0.0,
-        -0.5,  0.0, 0.0,
-    ];
-    let first = OldMesh::new(&vertices);
-    let vertices = [
-        0.0, 0.0, 0.0,
-        1.0, 0.0, 0.0,
-        0.5, 1.0, 0.0,
-    ];
-    let second = OldMesh::new(&vertices);
-    [first, second]
+    Ok(())
 }
 
 fn on_resize(_window: &mut glfw::Window, width: i32, height: i32) {
