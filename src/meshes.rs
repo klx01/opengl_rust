@@ -45,7 +45,7 @@ pub(crate) fn rectangle_texture() -> Mesh {
          0.5,  0.5, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0,   // top right. top is 0, and bottom is 1. or instead flip the source image
          0.5, -0.5, 0.0,   0.0, 1.0, 0.0,   1.0, 1.0,   // bottom right
         -0.5, -0.5, 0.0,   0.0, 0.0, 1.0,   0.0, 1.0,   // bottom left
-        -0.5,  0.5, 0.0,   1.0, 1.0, 0.0,   0.0, 0.0    // top left  
+        -0.5,  0.5, 0.0,   1.0, 1.0, 0.0,   0.0, 0.0    // top left
     ];
     let indices = [
         0, 1, 3,   // first triangle

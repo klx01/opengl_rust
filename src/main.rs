@@ -64,7 +64,7 @@ fn main() -> Result<(), ()> {
     while !window.should_close() {
         if window.get_key(Key::Escape) == Action::Press {
             window.set_should_close(true);
-        } 
+        }
         if window.get_key(Key::Up) == Action::Press {
             if !up_pressed {
                 interpolation += 0.1;
@@ -80,7 +80,7 @@ fn main() -> Result<(), ()> {
             down_pressed = true;
         } else if window.get_key(Key::Down) == Action::Release {
             down_pressed = false;
-        } 
+        }
         let time = glfw.get_time();
         let green = (time.sin() / 2.0) + 0.5;
         let offset_x = time.sin() / 2.0;
