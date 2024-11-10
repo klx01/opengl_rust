@@ -44,9 +44,6 @@ impl ShaderProgram {
         }
         loc
     }
-    pub(crate) fn set_uniform(&self, location: i32, v1: f32, v2: f32, v3: f32, v4: f32) {
-        unsafe { gl::Uniform4f(location, v1, v2, v3, v4) };
-    }
     pub(crate) fn list_uniforms(&self) {
         unsafe {
             let mut count = 0;
@@ -140,8 +137,11 @@ impl ProgramWithUniforms {
         let locations = locations.into_boxed_slice();
         Some(Self { inner, locations })
     }
-    pub(crate) fn set_location(&self, index: usize, v1: f32, v2: f32, v3: f32, v4: f32) {
-        self.inner.set_uniform(self.locations[index], v1, v2, v3, v4)
+    pub(crate) fn set_location_4f(&self, index: usize, v1: f32, v2: f32, v3: f32, v4: f32) {
+        unsafe { gl::Uniform4f(self.locations[index], v1, v2, v3, v4) };
+    }
+    pub(crate) fn set_location_1f(&self, index: usize, value: f32) {
+        unsafe { gl::Uniform1f(self.locations[index], value) };
     }
     pub(crate) fn set_texture(&self, uniform_name_index: usize, texture: &Texture) {
         // not sure if this is correct

@@ -39,7 +39,7 @@ pub(crate) fn program_in_colour() -> Option<ShaderProgram> {
 
 pub(crate) fn program_colour_and_texture() -> Option<ProgramWithUniforms> {
     let program = ShaderProgram::compile_vert_and_frag(VERT_SHADER_COLOUR_AND_TEXTURE, FRAG_SHADER_COLOUR_AND_TEXTURE)?;
-    ProgramWithUniforms::new(program, &[c"set_texture0", c"set_texture1"])
+    ProgramWithUniforms::new(program, &[c"set_texture0", c"set_texture1", c"interpolation"])
 }
 
 pub(crate) fn program_set_colour() -> Option<ProgramWithUniforms> {

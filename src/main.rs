@@ -58,9 +58,28 @@ fn main() -> Result<(), ()> {
     //let meshes = two_triangles_old_split();
     //unsafe{gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE)};
 
+    let mut interpolation = 0.2;
+    let mut up_pressed = false;
+    let mut down_pressed = false;
     while !window.should_close() {
         if window.get_key(Key::Escape) == Action::Press {
             window.set_should_close(true);
+        } 
+        if window.get_key(Key::Up) == Action::Press {
+            if !up_pressed {
+                interpolation += 0.1;
+            }
+            up_pressed = true;
+        } else if window.get_key(Key::Up) == Action::Release {
+            up_pressed = false;
+        }
+        if window.get_key(Key::Down) == Action::Press {
+            if !down_pressed {
+                interpolation -= 0.1;
+            }
+            down_pressed = true;
+        } else if window.get_key(Key::Down) == Action::Release {
+            down_pressed = false;
         } 
         let time = glfw.get_time();
         let green = (time.sin() / 2.0) + 0.5;
@@ -72,6 +91,7 @@ fn main() -> Result<(), ()> {
         program.use_program();
         program.set_texture(0, &texture);
         program.set_texture(1, &texture1);
+        program.set_location_1f(2, interpolation);
         // to set the uniform value, you need to use the program first
         //program.set_location(0, 0.0, green as f32, 0.0, 1.0);
         //program.set_location(0, offset_x as f32, 0.0, 0.0, 0.0);
