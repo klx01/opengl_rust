@@ -45,14 +45,14 @@ impl Texture {
             }
         };
         let wrap = std::io::Cursor::new(file_bytes);
-        let (info, decoded_bytes) = match spng::decode(wrap, spng::Format::Rgb8) {
+        let (info, decoded_bytes) = match spng::decode(wrap, spng::Format::Rgba8) {
             Ok(x) => x,
             Err(err) => {
                 eprintln!("failed to decode png file {file_name}: {err}");
                 return None;
             },
         };
-        Some(Self::new(&decoded_bytes, info.width, info.height, ImageFormat::RGB))
+        Some(Self::new(&decoded_bytes, info.width, info.height, ImageFormat::RGBA))
     }
     pub(crate) fn new(image_bytes: &[u8], width: u32, height: u32, format: ImageFormat) -> Self {
         let mut id = 0;
