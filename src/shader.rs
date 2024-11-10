@@ -1,5 +1,6 @@
 use std::ffi::CStr;
 use gl::{GetShaderInfoLog, GetProgramInfoLog, types};
+use crate::texture::Texture;
 
 macro_rules! log_error {
     ($func_name:ident, $id:ident) => {
@@ -141,6 +142,18 @@ impl ProgramWithUniforms {
     }
     pub(crate) fn set_location(&self, index: usize, v1: f32, v2: f32, v3: f32, v4: f32) {
         self.inner.set_uniform(self.locations[index], v1, v2, v3, v4)
+    }
+    pub(crate) fn set_texture(&self, uniform_name_index: usize, texture: &Texture) {
+        // not sure if this is correct
+        let texture_no = uniform_name_index as u32;
+        unsafe {
+            gl::Uniform1i(self.locations[uniform_name_index], texture_no as i32);
+            gl::ActiveTexture(gl::TEXTURE0 + texture_no)
+        };
+        texture.bind();
+    }
+    pub(crate) fn get_location_by_index(&self, index: usize) -> i32 {
+        self.locations[index]
     }
     pub(crate) fn inner(&self) -> &ShaderProgram {
         &self.inner

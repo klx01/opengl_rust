@@ -23,20 +23,35 @@ pub(crate) fn rectangle_screen() -> Mesh {
     ];
     let indices = [
         0, 1, 3,   // first triangle
-        1, 2, 3,    // second triangle
+        1, 2, 3,   // second triangle
     ];
     Mesh::new(&vertices, &indices, &[3])
 }
 
 pub(crate) fn multi_attr() -> Mesh {
     let vertices = [
-        // positions         // colors
+        // positions      // colors
          0.5, -0.5, 0.0,  1.0, 0.0, 0.0,   // bottom right
         -0.5, -0.5, 0.0,  0.0, 1.0, 0.0,   // bottom left
          0.0,  0.5, 0.0,  0.0, 0.0, 1.0    // top 
     ];
     let indices = [0, 1, 2];
     Mesh::new(&vertices, &indices, &[3, 3])
+}
+
+pub(crate) fn rectangle_texture() -> Mesh {
+    let vertices = [
+        // positions       // colors        // texture coords
+         0.5,  0.5, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0,   // top right. top is 0, and bottom is 1. or instead flip the source image
+         0.5, -0.5, 0.0,   0.0, 1.0, 0.0,   1.0, 1.0,   // bottom right
+        -0.5, -0.5, 0.0,   0.0, 0.0, 1.0,   0.0, 1.0,   // bottom left
+        -0.5,  0.5, 0.0,   1.0, 1.0, 0.0,   0.0, 0.0    // top left  
+    ];
+    let indices = [
+        0, 1, 3,   // first triangle
+        1, 2, 3,   // second triangle
+    ];
+    Mesh::new(&vertices, &indices, &[3, 3, 2])
 }
 
 pub(crate) fn old_triangle() -> OldMesh {

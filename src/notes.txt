@@ -3,3 +3,7 @@ To pass the data between shaders in the same shader program, you can give the sa
 Uniforms are accessible from any shader in a shader program; and a uniform has the same value across all shaders, and across all parallel runs of the same shader.
 
 You can set explicit uniform locations in newer versions of opengl the same way as we do for inputs, however i'm stuck with 4.1, so i have to query the locations.
+
+Mipmap - a collection of textures of different resolutions, so you can use the low-res ones when it is far away and small, and high-res when it is close and large. Using high-res texture for a far away object is inefficient and also produces artifacts (it is hard to sample it correctly). Mipmaps can only be used for downscaling, not upscaling the original texture.
+
+Tutorial says that "Texture coordinates start at (0,0) for the lower left corner of a texture image to (1,1) for the upper right corner of a texture image". But using the coordinates this way results in having a vertically flipped texture. Tutorial suggests to fix this by flipping the image when loading it. But you can instead flip the coordinates, and think of 0 as top and 1 as bottom for the y axis. After changing the coordinates (the attribute values), the texture is displayed correctly.
