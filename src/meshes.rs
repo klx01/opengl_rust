@@ -1,5 +1,43 @@
 use crate::mesh::*;
 
+pub(crate) fn triangle() -> MeshNoIndices {
+    let vertices = [
+        -0.5, -0.5, 0.0,
+        0.5, -0.5, 0.0,
+        0.0,  0.5, 0.0,
+    ];
+    MeshNoIndices::new_interleaved(&vertices, &[3])
+}
+
+pub(crate) fn two_triangles() -> MeshNoIndices {
+    let vertices = [
+        -1.0, -1.0, 0.0,
+        -0.0, -1.0, 0.0,
+        -0.5,  0.0, 0.0,
+
+        0.0, 0.0, 0.0,
+        1.0, 0.0, 0.0,
+        0.5, 1.0, 0.0,
+    ];
+    MeshNoIndices::new_interleaved(&vertices, &[3])
+}
+
+pub(crate) fn two_triangles_split() -> [MeshNoIndices; 2] {
+    let vertices = [
+        -1.0, -1.0, 0.0,
+        -0.0, -1.0, 0.0,
+        -0.5,  0.0, 0.0,
+    ];
+    let first = MeshNoIndices::new_interleaved(&vertices, &[3]);
+    let vertices = [
+        0.0, 0.0, 0.0,
+        1.0, 0.0, 0.0,
+        0.5, 1.0, 0.0,
+    ];
+    let second = MeshNoIndices::new_interleaved(&vertices, &[3]);
+    [first, second]
+}
+
 pub(crate) fn rectangle() -> MeshWithIndices {
     let vertices = [
         0.5,  0.5, 0.0,  // top right
@@ -28,7 +66,7 @@ pub(crate) fn rectangle_screen() -> MeshWithIndices {
     MeshWithIndices::new_interleaved(&vertices, &indices, &[3])
 }
 
-pub(crate) fn multi_attr_interleaved() -> MeshWithIndices {
+pub(crate) fn multi_attr_indices_interleaved() -> MeshWithIndices {
     let vertices = [
         // positions      // colors
          0.5, -0.5, 0.0,  1.0, 0.0, 0.0,   // bottom right
@@ -39,7 +77,7 @@ pub(crate) fn multi_attr_interleaved() -> MeshWithIndices {
     MeshWithIndices::new_interleaved(&vertices, &indices, &[3, 3])
 }
 
-pub(crate) fn multi_attr_batched() -> MeshWithIndices {
+pub(crate) fn multi_attr_indices_batched() -> MeshWithIndices {
     let vertices = [
         // positions      
          0.5, -0.5, 0.0,  
@@ -52,6 +90,30 @@ pub(crate) fn multi_attr_batched() -> MeshWithIndices {
     ];
     let indices = [0, 1, 2];
     MeshWithIndices::new_batched(&vertices, &indices, &[3, 3])
+}
+
+pub(crate) fn multi_attr_no_indices_interleaved() -> MeshNoIndices {
+    let vertices = [
+        // positions      // colors
+         0.5, -0.5, 0.0,  1.0, 0.0, 0.0,   // bottom right
+        -0.5, -0.5, 0.0,  0.0, 1.0, 0.0,   // bottom left
+         0.0,  0.5, 0.0,  0.0, 0.0, 1.0    // top 
+    ];
+    MeshNoIndices::new_interleaved(&vertices, &[3, 3])
+}
+
+pub(crate) fn multi_attr_no_indices_batched() -> MeshNoIndices {
+    let vertices = [
+        // positions      
+         0.5, -0.5, 0.0,  
+        -0.5, -0.5, 0.0,  
+         0.0,  0.5, 0.0,
+        // colors
+        1.0, 0.0, 0.0,   // bottom right
+        0.0, 1.0, 0.0,   // bottom left
+        0.0, 0.0, 1.0    // top
+    ];
+    MeshNoIndices::new_batched(&vertices, &[3, 3])
 }
 
 pub(crate) fn rectangle_texture() -> MeshWithIndices {
@@ -67,42 +129,4 @@ pub(crate) fn rectangle_texture() -> MeshWithIndices {
         1, 2, 3,   // second triangle
     ];
     MeshWithIndices::new_interleaved(&vertices, &indices, &[3, 3, 2])
-}
-
-pub(crate) fn old_triangle() -> MeshNoIndices {
-    let vertices = [
-        -0.5, -0.5, 0.0,
-        0.5, -0.5, 0.0,
-        0.0,  0.5, 0.0,
-    ];
-    MeshNoIndices::new(&vertices)
-}
-
-pub(crate) fn two_triangles_old() -> MeshNoIndices {
-    let vertices = [
-        -1.0, -1.0, 0.0,
-        -0.0, -1.0, 0.0,
-        -0.5,  0.0, 0.0,
-
-        0.0, 0.0, 0.0,
-        1.0, 0.0, 0.0,
-        0.5, 1.0, 0.0,
-    ];
-    MeshNoIndices::new(&vertices)
-}
-
-pub(crate) fn two_triangles_old_split() -> [MeshNoIndices; 2] {
-    let vertices = [
-        -1.0, -1.0, 0.0,
-        -0.0, -1.0, 0.0,
-        -0.5,  0.0, 0.0,
-    ];
-    let first = MeshNoIndices::new(&vertices);
-    let vertices = [
-        0.0, 0.0, 0.0,
-        1.0, 0.0, 0.0,
-        0.5, 1.0, 0.0,
-    ];
-    let second = MeshNoIndices::new(&vertices);
-    [first, second]
 }

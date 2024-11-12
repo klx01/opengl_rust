@@ -46,21 +46,23 @@ fn main() -> Result<(), ()> {
     //let program_yellow = program_yellow().ok_or(())?;
     //let program = program_pos_colour().ok_or(())?;
     //let program = program_set_colour().ok_or(())?;
-    //let program = program_in_colour().ok_or(())?;
+    let program = program_in_colour().ok_or(())?;
     //let program = program_colour_and_texture().ok_or(())?;
-    let program = program_transform().ok_or(())?;
+    //let program = program_transform().ok_or(())?;
 
     let (width, height) = window.get_framebuffer_size();
     window.set_framebuffer_size_callback(on_resize);
     on_resize(&mut window, width, height);
 
-    let mesh = rectangle();
-    //let mesh = old_triangle();
+    //let mesh = rectangle();
+    //let mesh = triangle();
     //let mesh = rectangle_screen();
     //let mesh = rectangle_texture();
-    //let mesh = multi_attr_interleaved();
-    //let mesh = multi_attr_batched();
-    //let meshes = two_triangles_old_split();
+    //let mesh = multi_attr_indices_interleaved();
+    //let mesh = multi_attr_indices_batched();
+    //let mesh = multi_attr_no_indices_interleaved();
+    let mesh = multi_attr_no_indices_batched();
+    //let meshes = two_triangles_split();
     //unsafe{gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE)};
 
     let mut interpolation = 0.2;
@@ -107,7 +109,7 @@ fn main() -> Result<(), ()> {
             gl::Clear(gl::COLOR_BUFFER_BIT);
         }
         program.use_program();
-        program.set_location_mat4f(0, &transform);
+        //program.set_location_mat4f(0, &transform);
         /*program.set_texture(0, &texture);
         program.set_texture(1, &texture1);
         program.set_location_1f(2, interpolation);*/
@@ -119,10 +121,10 @@ fn main() -> Result<(), ()> {
         meshes[0].render();
         program_yellow.use_program();
         meshes[1].render();*/
-        let transform = glam::Mat4::from_scale(glam::Vec3::splat(sin));
+        /*let transform = glam::Mat4::from_scale(glam::Vec3::splat(sin));
         let transform = translation_mat2.mul_mat4(&transform);
         program.set_location_mat4f(0, &transform);
-        mesh.render();
+        mesh.render();*/
 
         window.swap_buffers();
 

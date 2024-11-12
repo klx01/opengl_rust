@@ -60,9 +60,14 @@ fn set_attributes_interleaved(attribute_sizes: &[i32]) {
     }
 }
 
-fn set_attributes_batched(attribute_sizes: &[i32], floats_count: usize) {
+fn get_vertices_count(attribute_sizes: &[i32], floats_count: usize) -> i32 {
     let floats_per_vertex: i32 = attribute_sizes.iter().sum();
     let vertices_count = floats_count as i32 / floats_per_vertex;
+    vertices_count
+}
+
+fn set_attributes_batched(attribute_sizes: &[i32], floats_count: usize) {
+    let vertices_count = get_vertices_count(attribute_sizes, floats_count);
     let float_size = size_of::<f32>() as i32;
     let mut offset = 0;
     for (location, &size) in attribute_sizes.iter().enumerate() {
@@ -137,26 +142,20 @@ pub(crate) struct MeshNoIndices {
 }
 
 impl MeshNoIndices {
-    pub(crate) fn new(vertices: &[f32]) -> Self {
+    pub(crate) fn new_interleaved(vertices: &[f32], attribute_sizes: &[i32]) -> Self {
         let vao = create_and_bind_vao();
         let vbo = create_and_bind_vbo(vertices);
-        // todo: do multi attributes
-        const VERTEX_SIZE: i32 = 3;
-        unsafe {
-            /*
-            sets attributes for the current buffer object (describe the data):
-            index of the vertex attribute to be modified, location from the shader file
-            we have vertices of 3 floats (vec3)
-            we don't want to normalize them (so false)
-            no stride (0); stride can be used to store data as structs (i.e. coords, color, next coords, next color)
-            no offset from the start
-            */
-            const LOCATION: gl::types::GLuint = 0;
-            gl::VertexAttribPointer(LOCATION, VERTEX_SIZE, gl::FLOAT, gl::FALSE, 0, std::ptr::null());
-            gl::EnableVertexAttribArray(LOCATION);
-        };
+        set_attributes_interleaved(attribute_sizes);
         Self::unbind();
-        let vertex_count = vertices.len() as i32 / VERTEX_SIZE;
+        let vertex_count = get_vertices_count(attribute_sizes, vertices.len());
+        Self {vao, vbo, vertex_count}
+    }
+    pub(crate) fn new_batched(vertices: &[f32], attribute_sizes: &[i32]) -> Self {
+        let vao = create_and_bind_vao();
+        let vbo = create_and_bind_vbo(vertices);
+        set_attributes_batched(attribute_sizes, vertices.len());
+        Self::unbind();
+        let vertex_count = get_vertices_count(attribute_sizes, vertices.len());
         Self {vao, vbo, vertex_count}
     }
     fn unbind() {
