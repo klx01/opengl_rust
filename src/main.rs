@@ -4,6 +4,8 @@ mod meshes;
 mod shaders;
 mod texture;
 
+use std::thread::sleep;
+use std::time::Duration;
 use glfw::{Action, Context, Key, OpenGlProfileHint, WindowHint};
 use shader::*;
 use shaders::*;
@@ -28,7 +30,6 @@ fn main() -> Result<(), ()> {
     window.make_current();
 
     gl::load_with(|s| window.get_proc_address(s) as *const _);
-
     /*// vertex shaders are guaranteed to have at least 16 vec4 inputs
     // you can check the actual amount using this
     // in my case it's still 16
@@ -46,21 +47,32 @@ fn main() -> Result<(), ()> {
     //let program = program_pos_colour().ok_or(())?;
     //let program = program_set_colour().ok_or(())?;
     //let program = program_in_colour().ok_or(())?;
-    let program = program_colour_and_texture().ok_or(())?;
+    //let program = program_colour_and_texture().ok_or(())?;
+    let program = program_transform().ok_or(())?;
 
     let (width, height) = window.get_framebuffer_size();
     window.set_framebuffer_size_callback(on_resize);
     on_resize(&mut window, width, height);
 
+    let mesh = rectangle();
+    //let mesh = old_triangle();
     //let mesh = rectangle_screen();
-    let mesh = rectangle_texture();
-    //let mesh = multi_attr();
+    //let mesh = rectangle_texture();
+    //let mesh = multi_attr_interleaved();
+    //let mesh = multi_attr_batched();
     //let meshes = two_triangles_old_split();
     //unsafe{gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE)};
 
     let mut interpolation = 0.2;
     let mut up_pressed = false;
     let mut down_pressed = false;
+    let mut time_start = glfw.get_time();
+    let target = 1.0 / 60.0;
+    let scale = glam::Vec3::splat(1.25);
+    let translation = glam::Vec3::new(0.25, 0.1, 0.0);
+    let translation2 = glam::Vec3::new(-0.25, -0.1, 0.0);
+    let translation_mat = glam::Mat4::from_translation(translation);
+    let translation_mat2 = glam::Mat4::from_translation(translation2);
     while !window.should_close() {
         if window.get_key(Key::Escape) == Action::Press {
             window.set_should_close(true);
@@ -81,27 +93,50 @@ fn main() -> Result<(), ()> {
         } else if window.get_key(Key::Down) == Action::Release {
             down_pressed = false;
         }
-        let time = glfw.get_time();
-        let green = (time.sin() / 2.0) + 0.5;
-        let offset_x = time.sin() / 2.0;
+        let time_for_calc = time_start as f32;
+        let sin = time_for_calc.sin() / 2.0;
+        /*let transform = glam::Mat4::from_scale_rotation_translation(
+            scale,
+            glam::Quat::from_rotation_z(angle as f32),
+            translation,
+        );*/
+        let transform = glam::Mat4::from_rotation_z(time_for_calc);
+        let transform = translation_mat.mul_mat4(&transform);
         unsafe {
             gl::ClearColor(0.2, 0.3, 0.3, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT);
         }
         program.use_program();
-        program.set_texture(0, &texture);
+        program.set_location_mat4f(0, &transform);
+        /*program.set_texture(0, &texture);
         program.set_texture(1, &texture1);
-        program.set_location_1f(2, interpolation);
+        program.set_location_1f(2, interpolation);*/
         // to set the uniform value, you need to use the program first
-        //program.set_location(0, 0.0, green as f32, 0.0, 1.0);
-        //program.set_location(0, offset_x as f32, 0.0, 0.0, 0.0);
+        //program.set_location(0, 0.0, sin, 0.0, 1.0);
+        //program.set_location(0, sin, 0.0, 0.0, 0.0);
         mesh.render();
         /*program_orange.use_program();
         meshes[0].render();
         program_yellow.use_program();
         meshes[1].render();*/
+        let transform = glam::Mat4::from_scale(glam::Vec3::splat(sin));
+        let transform = translation_mat2.mul_mat4(&transform);
+        program.set_location_mat4f(0, &transform);
+        mesh.render();
 
         window.swap_buffers();
+
+        let end = glfw.get_time();
+        let elapsed = end - time_start;
+        time_start = end;
+        /*let fps = 1.0 / elapsed;
+        println!("{elapsed} {fps}");*/
+        let left = target - elapsed;
+        if left > 0.00001 {
+            // it feels like this is not actually working correctly
+            sleep(Duration::from_secs_f64(left));
+        }
+
         glfw.poll_events();
     }
     Ok(())

@@ -143,6 +143,9 @@ impl ProgramWithUniforms {
     pub(crate) fn set_location_1f(&self, index: usize, value: f32) {
         unsafe { gl::Uniform1f(self.locations[index], value) };
     }
+    pub(crate) fn set_location_mat4f(&self, index: usize, value: &glam::Mat4) {
+        unsafe{ gl::UniformMatrix4fv(self.locations[index], 1, gl::FALSE, value as *const glam::Mat4 as *const f32) }
+    }
     pub(crate) fn set_texture(&self, uniform_name_index: usize, texture: &Texture) {
         // not sure if this is correct
         let texture_no = uniform_name_index as u32;
