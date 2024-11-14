@@ -32,6 +32,13 @@ fn main() -> Result<(), ()> {
     gl::load_with(|s| window.get_proc_address(s) as *const _);
     unsafe{ gl::Enable(gl::DEPTH_TEST) };
 
+    /*dump_string(gl::VENDOR);
+    dump_string(gl::RENDERER);
+    dump_string(gl::VERSION);
+    dump_string(gl::SHADING_LANGUAGE_VERSION);
+    dump_stringi(gl::EXTENSIONS, gl::NUM_EXTENSIONS);
+    dump_stringi(gl::SHADING_LANGUAGE_VERSION, gl::NUM_SHADING_LANGUAGE_VERSIONS);*/
+
     /*// vertex shaders are guaranteed to have at least 16 vec4 inputs
     // you can check the actual amount using this
     // in my case it's still 16
@@ -196,6 +203,34 @@ fn main() -> Result<(), ()> {
 
 fn on_resize(_window: &mut glfw::Window, width: i32, height: i32) {
     unsafe { gl::Viewport(0, 0, width.into(), height.into()) };
+}
+
+fn dump_string(name: gl::types::GLenum) {
+    unsafe {
+        let ptr = gl::GetString(name);
+        dump_string_ptr(ptr, name);
+    }
+}
+unsafe fn dump_string_ptr(ptr: *const gl::types::GLubyte, name: gl::types::GLenum) {
+    if ptr.is_null() {
+        eprintln!("failed to get value for param {name:x?}");
+        return;
+    }
+    let str = std::ffi::CStr::from_ptr(ptr as *const std::ffi::c_char);
+    println!("{str:?}");
+}
+fn dump_stringi(string_name: gl::types::GLenum, int_name: gl::types::GLenum) {
+    unsafe {
+        let mut val = 0;
+        gl::GetIntegerv(int_name, &mut val);
+        if val == 0 {
+            println!("got 0 values");
+        }
+        for i in 0..val as u32 {
+            let ptr = gl::GetStringi(string_name, i);
+            dump_string_ptr(ptr, string_name);
+        }
+    }
 }
 
 
