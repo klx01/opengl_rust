@@ -30,6 +30,8 @@ fn main() -> Result<(), ()> {
     window.make_current();
 
     gl::load_with(|s| window.get_proc_address(s) as *const _);
+    unsafe{ gl::Enable(gl::DEPTH_TEST) };
+
     /*// vertex shaders are guaranteed to have at least 16 vec4 inputs
     // you can check the actual amount using this
     // in my case it's still 16
@@ -46,9 +48,10 @@ fn main() -> Result<(), ()> {
     //let program_yellow = program_yellow().ok_or(())?;
     //let program = program_pos_colour().ok_or(())?;
     //let program = program_set_colour().ok_or(())?;
-    let program = program_in_colour().ok_or(())?;
+    //let program = program_in_colour().ok_or(())?;
     //let program = program_colour_and_texture().ok_or(())?;
-    //let program = program_transform().ok_or(())?;
+    //let program = program_mvp().ok_or(())?;
+    let program = program_mvp_texture().ok_or(())?;
 
     let (width, height) = window.get_framebuffer_size();
     window.set_framebuffer_size_callback(on_resize);
@@ -61,8 +64,9 @@ fn main() -> Result<(), ()> {
     //let mesh = multi_attr_indices_interleaved();
     //let mesh = multi_attr_indices_batched();
     //let mesh = multi_attr_no_indices_interleaved();
-    let mesh = multi_attr_no_indices_batched();
+    //let mesh = multi_attr_no_indices_batched();
     //let meshes = two_triangles_split();
+    let mesh = cube();
     //unsafe{gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE)};
 
     let mut interpolation = 0.2;
@@ -70,16 +74,35 @@ fn main() -> Result<(), ()> {
     let mut down_pressed = false;
     let mut time_start = glfw.get_time();
     let target = 1.0 / 60.0;
-    let scale = glam::Vec3::splat(1.25);
+    let mut rot_x = 0.0;
+    let mut rot_y = 0.0;
+    /*let scale = glam::Vec3::splat(1.25);
     let translation = glam::Vec3::new(0.25, 0.1, 0.0);
     let translation2 = glam::Vec3::new(-0.25, -0.1, 0.0);
     let translation_mat = glam::Mat4::from_translation(translation);
-    let translation_mat2 = glam::Mat4::from_translation(translation2);
+    let translation_mat2 = glam::Mat4::from_translation(translation2);*/
+    let cube_positions = [
+        glam::Vec3::new( 0.0,  0.0,  0.0),
+        glam::Vec3::new( 2.0,  5.0, -15.0),
+        glam::Vec3::new(-1.5, -2.2, -2.5),
+        glam::Vec3::new(-3.8, -2.0, -12.3),
+        glam::Vec3::new( 2.4, -0.4, -3.5),
+        glam::Vec3::new(-1.7,  3.0, -7.5),
+        glam::Vec3::new( 1.3, -2.0, -2.5),
+        glam::Vec3::new( 1.5,  2.0, -2.5),
+        glam::Vec3::new( 1.5,  0.2, -1.5),
+        glam::Vec3::new(-1.3,  1.0, -1.5),
+    ];
+    let cube_translations = cube_positions.map(|x| glam::Mat4::from_translation(x));
+    let aspect_ratio = WINDOW_WIDTH as f32 / WINDOW_HEIGHT as f32;
+    //let aspect_ratio = 1.777777;
+    //let aspect_ratio = 0.5;
     while !window.should_close() {
         if window.get_key(Key::Escape) == Action::Press {
             window.set_should_close(true);
         }
         if window.get_key(Key::Up) == Action::Press {
+            rot_x -= 0.1;
             if !up_pressed {
                 interpolation += 0.1;
             }
@@ -88,6 +111,7 @@ fn main() -> Result<(), ()> {
             up_pressed = false;
         }
         if window.get_key(Key::Down) == Action::Press {
+            rot_x += 0.1;
             if !down_pressed {
                 interpolation -= 0.1;
             }
@@ -95,33 +119,59 @@ fn main() -> Result<(), ()> {
         } else if window.get_key(Key::Down) == Action::Release {
             down_pressed = false;
         }
+        if window.get_key(Key::Left) == Action::Press {
+            rot_y -= 0.1;
+        }
+        if window.get_key(Key::Right) == Action::Press {
+            rot_y += 0.1;
+        }
         let time_for_calc = time_start as f32;
-        let sin = time_for_calc.sin() / 2.0;
+        let sin = time_for_calc.sin();
+        let sin_half = sin / 2.0;
+        let model = glam::Mat4::from_rotation_x(rot_x)
+            * glam::Mat4::from_rotation_y(rot_y);
+        let view = glam::Mat4::from_translation(glam::Vec3::new(0.0, 0.0, -3.0));
+        let projection = glam::Mat4::perspective_rh_gl(45.0f32.to_radians(), aspect_ratio, 0.1, 100.0);
         /*let transform = glam::Mat4::from_scale_rotation_translation(
             scale,
             glam::Quat::from_rotation_z(angle as f32),
             translation,
         );*/
-        let transform = glam::Mat4::from_rotation_z(time_for_calc);
-        let transform = translation_mat.mul_mat4(&transform);
+        /*let transform = glam::Mat4::from_rotation_z(time_for_calc);
+        let transform = translation_mat.mul_mat4(&transform);*/
         unsafe {
             gl::ClearColor(0.2, 0.3, 0.3, 1.0);
-            gl::Clear(gl::COLOR_BUFFER_BIT);
+            gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
         }
         program.use_program();
+        //program.set_location_mat4f(0, &model);
+        program.set_location_mat4f(1, &view);
+        program.set_location_mat4f(2, &projection);
+        program.set_texture(3, &texture);
+        program.set_texture(4, &texture1);
         //program.set_location_mat4f(0, &transform);
         /*program.set_texture(0, &texture);
-        program.set_texture(1, &texture1);
-        program.set_location_1f(2, interpolation);*/
+        program.set_texture(1, &texture1);*/
+        //program.set_location_1f(2, interpolation);
         // to set the uniform value, you need to use the program first
-        //program.set_location(0, 0.0, sin, 0.0, 1.0);
-        //program.set_location(0, sin, 0.0, 0.0, 0.0);
-        mesh.render();
+        //program.set_location(0, 0.0, sin_half, 0.0, 1.0);
+        //program.set_location(0, sin_half, 0.0, 0.0, 0.0);
+        //mesh.render();
+        for (index, &translation) in cube_translations.iter().enumerate() {
+            let rot = if index % 3 == 0 {
+                time_for_calc
+            } else {
+                index as f32 / 10.0
+            };
+            let model = translation * glam::Mat4::from_rotation_x(rot);
+            program.set_location_mat4f(0, &model);
+            mesh.render();
+        }
         /*program_orange.use_program();
         meshes[0].render();
         program_yellow.use_program();
         meshes[1].render();*/
-        /*let transform = glam::Mat4::from_scale(glam::Vec3::splat(sin));
+        /*let transform = glam::Mat4::from_scale(glam::Vec3::splat(sin_half));
         let transform = translation_mat2.mul_mat4(&transform);
         program.set_location_mat4f(0, &transform);
         mesh.render();*/

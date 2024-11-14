@@ -7,11 +7,14 @@ const VERT_SHADER_POS_COLOUR: &str = include_str!("shaders/position_colour.vert"
 const VERT_SHADER_IN_COLOUR: &str = include_str!("shaders/input_colour.vert");
 const VERT_SHADER_COLOUR_AND_TEXTURE: &str = include_str!("shaders/colour_and_texture.vert");
 const VERT_SHADER_TRANSFORM: &str = include_str!("shaders/transform.vert");
+const VERT_SHADER_MVP: &str = include_str!("shaders/mvp.vert");
+const VERT_SHADER_MVP_TEXTURE: &str = include_str!("shaders/mvp_texture.vert");
 const FRAG_SHADER_ORANGE: &str = include_str!("shaders/orange.frag");
 const FRAG_SHADER_YELLOW: &str = include_str!("shaders/yellow.frag");
 const FRAG_SHADER_IN_COLOUR: &str = include_str!("shaders/input_colour.frag");
 const FRAG_SHADER_UNI_COLOUR: &str = include_str!("shaders/uniform_colour.frag");
 const FRAG_SHADER_COLOUR_AND_TEXTURE: &str = include_str!("shaders/colour_and_texture.frag");
+const FRAG_SHADER_TEXTURE: &str = include_str!("shaders/texture.frag");
 
 pub(crate) fn program_orange() -> Option<ShaderProgram> {
     ShaderProgram::compile_vert_and_frag(VERT_SHADER_NOOP, FRAG_SHADER_ORANGE)
@@ -37,6 +40,16 @@ pub(crate) fn program_pos_colour() -> Option<ShaderProgram> {
 pub(crate) fn program_transform() -> Option<ProgramWithUniforms> {
     let program = ShaderProgram::compile_vert_and_frag(VERT_SHADER_TRANSFORM, FRAG_SHADER_IN_COLOUR)?;
     ProgramWithUniforms::new(program, &[c"set_transform"])
+}
+
+pub(crate) fn program_mvp() -> Option<ProgramWithUniforms> {
+    let program = ShaderProgram::compile_vert_and_frag(VERT_SHADER_MVP, FRAG_SHADER_IN_COLOUR)?;
+    ProgramWithUniforms::new(program, &[c"set_model", c"set_view", c"set_projection"])
+}
+
+pub(crate) fn program_mvp_texture() -> Option<ProgramWithUniforms> {
+    let program = ShaderProgram::compile_vert_and_frag(VERT_SHADER_MVP_TEXTURE, FRAG_SHADER_TEXTURE)?;
+    ProgramWithUniforms::new(program, &[c"set_model", c"set_view", c"set_projection", c"set_texture0", c"set_texture1"])
 }
 
 pub(crate) fn program_in_colour() -> Option<ShaderProgram> {
